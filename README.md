@@ -1,6 +1,25 @@
 
 # mmdetection
 
+## Introduction to IoU-aware single-stage object detector for accurate localization
+IoU-aware RetinaNet is implemented based on MMDetection. Most of the implemented codes are in the file "mmdet/
+models/anchor_heads/iou_aware_retina_head.py" and the corresponding configuration file is in "configs/iou_aware_single_stage_detector". 
+
+## Citation
+
+Please consider citing our papers in your publications if the project helps your research. BibTeX reference is as follows.
+
+```
+@article{wu2020iou,
+  title={IoU-aware single-stage object detector for accurate localization},
+  author={Wu, Shengkai and Li, Xiaoping and Wang, Xinggang},
+  journal={Image and Vision Computing},
+  pages={103911},
+  year={2020},
+  publisher={Elsevier}
+}
+```
+
 ## Introduction
 
 The master branch works with **PyTorch 1.1** or higher. If you would like to use PyTorch 0.4.1,
