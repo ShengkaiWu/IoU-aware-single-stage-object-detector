@@ -404,42 +404,9 @@ class AnchorHead(nn.Module):
             else:
                 scores = cls_score.softmax(-1)
 
-            # added by WSK
-            if self.use_iou_prediction:
-                alpha = 0.2
-                threshold = 0.96
 
-                bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 5)
-                bbox_pred_list = torch.split(bbox_pred, [4, 1], -1)
-                bbox_pred = bbox_pred_list[0] # (width_i*height_i*A, 4)
-                iou_pred = bbox_pred_list[1] # (width_i*height_i*A, 1)
-                iou_pred = torch.squeeze(iou_pred)
-                iou_pred = iou_pred.sigmoid()
-                # iou_pred[iou_pred<threshold] = 0
-
-                # compute the IoU between the regressed anchors and the ground truth boxes
-                bboxes_pred_decode = delta2bbox(anchors, bbox_pred, self.target_means,
-                                    self.target_stds, img_shape) # (width_i*height_i*A, 4)
-                if gt_bboxes.size(0) >= 1:
-                    overlaps = bbox_overlaps(gt_bboxes, bboxes_pred_decode) #(num_gt, width_i*height_i*A)
-                    # iou_truth.size()=(width_i*height_i*A)
-                    iou_truth, argmax_overlaps = overlaps.max(dim=0) # ()
-                    # iou_truth[iou_truth< threshold] = 0
-                else:
-                    iou_truth = iou_pred.new_zeros(iou_pred.size())
-
-                # multiply classification score with the class-agnostic IoU to compute the final
-                # detection confidence
-                # iou_expanded = iou_pred.view(-1, 1).expand(-1, scores.size(-1))
-                iou_expanded = iou_truth.view(-1, 1).expand(-1, scores.size(-1))
-
-                # scores = scores * iou_expanded
-                scores = scores.pow(alpha) * iou_expanded.pow(1 - alpha)
-                # print('test')
-
-            else:
-                bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 4)
-
+            bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 4)
+            #
             # Added by WSK
             # multiply the classification score with predicted iou to compute the final
             # detection confidence.

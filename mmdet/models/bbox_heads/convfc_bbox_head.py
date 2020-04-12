@@ -56,10 +56,6 @@ class ConvFCBBoxHead(BBoxHead):
         self.with_avg_pool_cls = with_avg_pool_cls
         self.with_avg_pool_reg = with_avg_pool_reg
 
-        # added by WSK
-        self.use_iou_prediction = False
-        self.use_class_agnostic_iou = True
-
         # add shared convs and fcs
         self.shared_convs, self.shared_fcs, last_layer_dim = \
             self._add_conv_fc_branch(
@@ -90,21 +86,10 @@ class ConvFCBBoxHead(BBoxHead):
             self.fc_cls = nn.Linear(self.cls_last_dim, self.num_classes)
         if self.with_reg:
 
-            # added by WSK
-            # use regression to predict the iou
-            if self.use_iou_prediction:
-                if self.use_class_agnostic_iou:
-                    out_dim_reg = 5 if self.reg_class_agnostic else (4 * self.num_classes+1)
-                else:
-                    out_dim_reg = 5 if self.reg_class_agnostic else 5 * self.num_classes
-                print('test1')
-                print('the out_dim_reg is ', out_dim_reg)
-            else:
-                out_dim_reg = 4 if self.reg_class_agnostic else 4 * self.num_classes
-                print('the out_dim_reg is ', out_dim_reg)
-                print('test')
-                # print("test: convfc_bbox_head")
-
+            out_dim_reg = 4 if self.reg_class_agnostic else 4 * self.num_classes
+            print('the out_dim_reg is ', out_dim_reg)
+            print('test')
+            # print("test: convfc_bbox_head")
 
             # out_dim_reg = (4 if self.reg_class_agnostic else 4 *
             #                self.num_classes)

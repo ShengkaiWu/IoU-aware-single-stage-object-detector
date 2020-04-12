@@ -69,9 +69,6 @@ class GARetinaHead(GuidedAnchorHead):
                                        3,
                                        padding=1)
 
-        # addec by WSK
-        self.use_iou_prediction = False
-
     def init_weights(self):
         for m in self.cls_convs:
             normal_init(m.conv, std=0.01)

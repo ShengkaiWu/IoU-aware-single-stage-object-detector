@@ -318,8 +318,7 @@ class IoUawareGARetinaHead(GuidedAnchorHead):
         #  num_total_pos, num_total_neg) = cls_reg_targets
 
         (labels_list, label_weights_list, bbox_targets_list, bbox_weights_list, num_total_pos, num_total_neg,
-         level_anchor_list, bbox_targets_cls_list, bbox_weights_cls_list, num_total_pos_cls,
-         num_total_neg_cls) = cls_reg_targets
+         level_anchor_list) = cls_reg_targets
 
 
         num_total_samples = (

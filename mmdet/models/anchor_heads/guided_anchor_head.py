@@ -191,8 +191,6 @@ class GuidedAnchorHead(AnchorHead):
                                      1)
         self.conv_reg = MaskedConv2d(self.feat_channels, self.num_anchors * 4,
                                      1)
-        # addec by WSK
-        self.use_iou_prediction = False
 
     def init_weights(self):
         normal_init(self.conv_cls, std=0.01)
@@ -472,8 +470,7 @@ class GuidedAnchorHead(AnchorHead):
         #  num_total_pos, num_total_neg) = cls_reg_targets
 
         (labels_list, label_weights_list, bbox_targets_list, bbox_weights_list, num_total_pos, num_total_neg,
-         level_anchor_list, bbox_targets_cls_list, bbox_weights_cls_list, num_total_pos_cls,
-         num_total_neg_cls) = cls_reg_targets
+         level_anchor_list) = cls_reg_targets
 
 
         num_total_samples = (

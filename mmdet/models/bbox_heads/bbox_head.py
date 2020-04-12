@@ -58,14 +58,8 @@ class BBoxHead(nn.Module):
         if self.with_cls:
             self.fc_cls = nn.Linear(in_channels, num_classes)
         if self.with_reg:
-
-            # added by WSK
-            # use regression to predict the iou
-            if self.use_iou_prediction:
-                out_dim_reg = 5 if reg_class_agnostic else 5 * num_classes
-            else:
-                out_dim_reg = 4 if reg_class_agnostic else 4 * num_classes
-                # print("test: bbox_head")
+            out_dim_reg = 4 if reg_class_agnostic else 4 * num_classes
+            # print("test: bbox_head")
 
             self.fc_reg = nn.Linear(in_channels, out_dim_reg)
         self.debug_imgs = None
@@ -160,37 +154,14 @@ class BBoxHead(nn.Module):
         # another way to get the pos_inds
         pos_inds = (labels>0).nonzero().view(-1)
 
-        # added by WSK
-        if self.use_iou_prediction:
-            # print('the size of pos_bbox_pred is ', bbox_pred.size())
-            if self.use_class_agnostic_iou:
-                bbox_pred_list = torch.split(bbox_pred, [4 * self.num_classes, 1], -1)
-                bbox_pred = bbox_pred_list[0]
-                pos_bbox_pred = bbox_pred.view(bbox_pred.size(0), -1,
-                                               4)[pos_inds, labels[pos_inds]]  # (num_pos, 4)
-                iou_pred = bbox_pred_list[1].squeeze()[pos_inds] # (num_pos)
-                # print('test')
-            else:
-                if self.reg_class_agnostic:
-                    pos_bbox_pred = bbox_pred.view(bbox_pred.size(0), 5)[pos_inds] # (num_pos, 5)
-                    # print('test')
-                else:
-                    pos_bbox_pred = bbox_pred.view(bbox_pred.size(0), -1,
-                                                   5)[pos_inds, labels[pos_inds]] # (num_pos, 5)
 
-                pos_bbox_pred_list = torch.split(pos_bbox_pred, [4, 1], -1)
-                pos_bbox_pred = pos_bbox_pred_list[0] # (num_pos, 4)
-                iou_pred = pos_bbox_pred_list[1] # (num_pos, 1)
-                iou_pred = iou_pred.squeeze()
-                # print('test2')
+        if self.reg_class_agnostic:
+            pos_bbox_pred = bbox_pred.view(bbox_pred.size(0), 4)[pos_inds] # (num_pos, 4)
+            # print('test')
         else:
-            if self.reg_class_agnostic:
-                pos_bbox_pred = bbox_pred.view(bbox_pred.size(0), 4)[pos_inds] # (num_pos, 4)
-                # print('test')
-            else:
-                pos_bbox_pred = bbox_pred.view(bbox_pred.size(0), -1,
-                                               4)[pos_inds, labels[pos_inds]] # (num_pos, 4)
-            # print("test: bbox_head")
+            pos_bbox_pred = bbox_pred.view(bbox_pred.size(0), -1,
+                                           4)[pos_inds, labels[pos_inds]] # (num_pos, 4)
+        # print("test: bbox_head")
 
         # compute the iou between predicted boxes and corresponding ground truth
         # boxes for positives. The shape of iou is (batch*num_pos)
@@ -198,32 +169,13 @@ class BBoxHead(nn.Module):
         IoU_balanced_Loc = self.IoU_balanced_Loc
 
 
-        if IoU_balanced_Cls or IoU_balanced_Loc or self.use_iou_prediction:
+        if IoU_balanced_Cls or IoU_balanced_Loc:
             # ignoring target_mean and target_std will result in wrong target_box and pred_box and thus wrong
             # iou.
             pred_box = delta2bbox(proposal_bboxes[pos_inds], pos_bbox_pred, self.target_means, self.target_stds)
             target_box = delta2bbox(proposal_bboxes[pos_inds], bbox_targets[pos_inds], self.target_means, self.target_stds)
             iou = bbox_overlaps(target_box, pred_box, is_aligned=True) # (num_pos)
             # iou = bbox_overlaps(target_box,  proposal_bboxes[pos_inds], is_aligned=True)
-
-            # print('pos_inds.size() is', pos_inds.size())
-            # print('pos_inds is ', pos_inds)
-            # iou_cpu = iou.cpu()
-            # iou_cpu = iou_cpu.detach()
-            # np_iou = iou_cpu.numpy()
-            # np.savetxt('iou.csv', np_iou, delimiter=',')
-            #
-            # iou_original_cpu = iou_original.cpu()
-            # iou_original_cpu = iou_original_cpu.detach()
-            # np_iou_original = iou_original_cpu.numpy()
-            # np.savetxt('iou_original.csv', np_iou_original, delimiter=',')
-
-
-            # print('iou is', iou)
-            # print('pos_bbox_pred.size() is', pos_bbox_pred.size())
-            # print('iou.size() is', iou.size())
-            # print('proposal_iou is ', proposal_iou)
-
 
         if bbox_pred is not None:
             if IoU_balanced_Loc:
@@ -243,27 +195,10 @@ class BBoxHead(nn.Module):
                     bbox_weights[pos_inds],
                     avg_factor=bbox_targets.size(0))
 
-        # added by WSK
-        if self.use_iou_prediction:
-            bbox_weight_list = torch.split(bbox_weights[pos_inds], 1, -1)
-            bbox_weight = bbox_weight_list[0]
-            bbox_weight = torch.squeeze(bbox_weight)
-            weight_iou = 1.0
-            loss_iou = weight_iou * weighted_iou_regression_loss(iou_pred, iou, bbox_weight,
-                                                                 avg_factor=bbox_targets.size(0))
-            losses['loss_bbox'] = losses['loss_bbox'] + loss_iou
-
         if cls_score is not None:
             if IoU_balanced_Cls:
                 iou_extended = bbox_pred.new_zeros(bbox_pred.size(0))
                 iou_extended[pos_inds] = iou
-                # pos_inds_test = (iou_extended > 0).nonzero().view(-1)
-                #
-                # print('iou_extended.size() is', iou_extended.size())
-                # print('pos_inds_test.size() is', pos_inds_test.size())
-                # print('pos_inds is', pos_inds)
-                # print('pos_inds_test is', pos_inds_test)
-                # print('iou_extended is', iou_extended)
 
                 losses['loss_cls'] = self.loss_cls(
                     cls_score, labels, label_weights, iou_extended, reduce=reduce)
@@ -300,63 +235,6 @@ class BBoxHead(nn.Module):
         scores = F.softmax(cls_score, dim=1) if cls_score is not None else None
 
         if bbox_pred is not None:
-
-            # added by WSK
-            if self.use_iou_prediction:
-                alpha = 1.0
-                if bbox_pred.size(1)==5:
-                    bbox_pred_list = torch.split(bbox_pred, [4,1], -1)
-                    bbox_pred = bbox_pred_list[0] # (batch*num_samples, 4)
-                    iou_pred = bbox_pred_list[1] # (batch*num_samples, 1)
-                    iou_pred = iou_pred.sigmoid()
-                    iou_pred = iou_pred.expand(-1, scores.size(-1))
-                    # scores = scores * iou_pred
-
-                    scores = scores.pow(alpha)*iou_pred.pow(1-alpha)
-                    # scores = alpha*scores + (1-alpha)*iou_pred
-                    # print('test')
-
-                elif self.use_class_agnostic_iou:
-                    bbox_pred_list = torch.split(bbox_pred, [4 * self.num_classes, 1], -1)
-                    bbox_pred = bbox_pred_list[0] # (batch*num_samples, num_class*4)
-                    iou_pred = bbox_pred_list[1] # (batch*num_sample, 1)
-                    iou_pred = iou_pred.sigmoid()
-                    iou_pred = iou_pred.expand(-1, scores.size(-1))
-                    # scores = scores * iou_pred
-                    # scores = scores.pow(alpha) * iou_pred.pow(1 - alpha)
-                    scores = alpha * scores + (1 - alpha) * iou_pred
-                    # print('test')
-
-                else:
-                    bbox_pred = bbox_pred.reshape(-1, cls_score.size(1), 5)
-                    bbox_pred_list = torch.split(bbox_pred, [4, 1], -1)
-                    bbox_pred = bbox_pred_list[0].reshape(-1, cls_score.size(-1)*4) # (batch*num_samples, num_class*4)
-                    iou_pred = bbox_pred_list[1].squeeze() # (batch*num_samples, num_class)
-                    iou_pred = iou_pred.sigmoid()
-                    # only select the predicted iou correspondding to the largest scores.
-                    # _ , ind = scores.max(dim=1)
-                    # print('the size of ind is ', ind.size())
-                    # iou_target = iou_pred[ind]
-                    # print('the size of iou_pred[ind] is', iou_target.size())
-                    # iou_target = iou_target.expand(-1, scores.size(-1))
-                    # print('the size of iou_target is', iou_target.size())
-                    # iou_selected = []
-                    # for i in range(iou_pred.size(0)):
-                    #     iou_selected.append(iou_pred[i, ind[i]])
-                    # # print('the len of iou_selected is ', len(iou_selected))
-                    # iou_final = torch.stack(iou_selected)
-                    # # print('the size of iou_final0 is ', iou_final.size())
-                    # iou_final = iou_final.view(-1, 1).expand(-1, cls_score.size(-1))
-                    # # print('the size of iou_final1 is ', iou_final.size())
-                    #
-                    # scores *= iou_final
-
-                    # scores = scores * iou_pred
-                    scores = scores.pow(alpha) * iou_pred.pow(1 - alpha)
-                    # scores = alpha * scores + (1 - alpha) * iou_pred
-                    # print('test')
-
-
             bboxes = delta2bbox(rois[:, 1:], bbox_pred, self.target_means,
                                 self.target_stds, img_shape)
         else:

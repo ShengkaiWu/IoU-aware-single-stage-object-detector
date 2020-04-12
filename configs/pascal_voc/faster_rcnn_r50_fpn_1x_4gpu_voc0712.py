@@ -26,7 +26,6 @@ model = dict(
         loss_cls=dict(
             type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0),
         loss_bbox=dict(type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0)
-        # use_iou_prediction = False
     ),
     bbox_roi_extractor=dict(
         type='SingleRoIExtractor',
@@ -49,26 +48,6 @@ model = dict(
         loss_cls=dict(type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
         loss_bbox=dict(type='SmoothL1Loss', beta=1.0, loss_weight=1.0)
     )
-    # bbox_head=dict(
-    #     type='SeperableBranchBBoxHead',
-    #     num_cls_fc=2 ,
-    #     num_reg_convs=2,
-    #     in_channels=256,
-    #     conv_out_channels=256,
-    #     fc_out_channels=1024,
-    #     with_avg_pool_reg=True,
-    #     roi_feat_size=7,
-    #     num_classes=81,
-    #     target_means=[0., 0., 0., 0.],
-    #     target_stds=[0.1, 0.1, 0.2, 0.2],
-    #     reg_class_agnostic=False,
-    #     # loss_cls=dict(
-    #     #     type='IOUbalancedCrossEntropyLoss', use_sigmoid=False, loss_weight=1.0, eta=1.5),
-    #     # loss_bbox=dict(type='IoUbalancedSmoothL1Loss', beta=1.0, delta=1.8, loss_weight=2.4),
-    #     loss_cls=dict(type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-    #     loss_bbox=dict(type='SmoothL1Loss', beta=1.0, loss_weight=1.0)
-    #     # use_iou_prediction = False
-    # )
 )
 # model training and testing settings
 train_cfg = dict(
