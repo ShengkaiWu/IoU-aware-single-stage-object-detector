@@ -1,13 +1,20 @@
 
-# mmdetection
 
-## Introduction to IoU-aware single-stage object detector for accurate localization
-IoU-aware RetinaNet is implemented based on MMDetection. Most of the implemented codes are in the file "mmdet/
-models/anchor_heads/iou_aware_retina_head.py" and the corresponding configuration file is in "configs/iou_aware_single_stage_detector". 
+
+# IoU-aware single-stage object detector
+##Introduction
+The repository is for the paper: IoU-aware single-stage object detector for accurate localization.
+ The full paper is available at: https://arxiv.org/abs/1912.05992
+
+IoU-aware RetinaNet is implemented based on MMDetection. The installation is the same as MMDetection.
+
+Most of the implemented codes are in the file "mmdet/models/anchor_heads/iou_aware_retina_head.py" and 
+the corresponding configuration file is in "configs/iou_aware_single_stage_detector". 
+
 
 ## Citation
 
-Please consider citing our papers in your publications if the project helps your research. BibTeX reference is as follows.
+Please consider citing our paper in your publications if the project helps your research. BibTeX reference is as follows.
 
 ```
 @article{wu2020iou,
@@ -19,6 +26,8 @@ Please consider citing our papers in your publications if the project helps your
   publisher={Elsevier}
 }
 ```
+
+# mmdetection
 
 ## Introduction
 

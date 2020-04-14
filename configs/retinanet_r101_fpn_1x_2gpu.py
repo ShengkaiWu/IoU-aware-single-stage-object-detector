@@ -54,17 +54,7 @@ train_cfg = dict(
         ignore_iof_thr=-1),
     allowed_border=-1,
     pos_weight=-1,
-    debug=False,
-    # added by WSK
-    # If use_diff_thr is set to be True, the type of loss_cls must be 'IOUbalancedSigmoidFocalLoss'.
-    #
-    use_diff_thr=False,
-    assginer_cls=dict(
-        type='MaxIoUAssigner',
-        pos_iou_thr=0.4,
-        neg_iou_thr=0.4,
-        min_pos_iou=0,
-        ignore_iof_thr=-1)
+    debug=False
 )
 test_cfg = dict(
     nms_pre=1000,

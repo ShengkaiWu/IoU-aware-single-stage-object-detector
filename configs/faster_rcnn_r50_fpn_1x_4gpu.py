@@ -43,7 +43,7 @@ model = dict(
         target_stds=[0.1, 0.1, 0.2, 0.2],
         reg_class_agnostic=True,
         loss_cls=dict(
-            type='IOUbalancedCrossEntropyLoss', use_sigmoid=False, loss_weight=1.0, eta=1.2),
+            type='IOUbalancedCrossEntropyLoss', use_sigmoid=False, loss_weight=1.0, eta=1.25),
         # loss_bbox=dict(type='IoUbalancedSmoothL1Loss', beta=1.0, delta=1.5, loss_weight=2.4)
         # loss_cls=dict(type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)
         loss_bbox=dict(type='SmoothL1Loss', beta=1.0, loss_weight=1.0)

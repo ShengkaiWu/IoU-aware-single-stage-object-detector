@@ -99,7 +99,7 @@ def iou_balanced_cross_entropy(pred, label, weight, iou, eta = 1.5, avg_factor=N
         # print('test_loss')
 
     if avg_factor is None:
-        # avg_factor = max(torch.sum(iou_weights).float().item(), 1.)
+        # avg_factor = max(torch.sum(normalized_iou_weights).float().item(), 1.)
         avg_factor = max(torch.sum(weight > 0).float().item(), 1.)
 
     if reduce:
