@@ -4,11 +4,20 @@
 
 - Linux
 - Python 3.5+ ([Say goodbye to Python2](https://python3statement.org/))
+  (The version of Python we use: 3.7)
 - PyTorch 1.0+ or PyTorch-nightly
+  (The version of PyTorch we use: 1.1.0)
 - CUDA 9.0+
+  (The version of CUDA we use: 10.0)
 - NCCL 2+
+  (The version of NCCL we use: 2.4.2)
 - GCC 4.9+
+  (The version of GCC we use: 5.4.0)
 - [mmcv](https://github.com/open-mmlab/mmcv)
+  (The version of mmcv we use: 0.2.8)
+  ```shell
+  pip install mmcv==0.2.8
+  ```
 
 We have tested the following versions of OS and softwares:
 
@@ -33,8 +42,8 @@ b. Install PyTorch stable or nightly and torchvision following the [official ins
 c. Clone the mmdetection repository.
 
 ```shell
-git clone https://github.com/open-mmlab/mmdetection.git
-cd mmdetection
+git clone https://github.com/ShengkaiWu/IoU-aware-single-stage-object-detector.git
+cd IoU-aware-single-stage-object-detector
 ```
 
 d. Compile cuda extensions.
